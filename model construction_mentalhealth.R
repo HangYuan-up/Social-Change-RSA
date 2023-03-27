@@ -1,0 +1,55 @@
+rm(list=ls())#删除目前所有的变量
+
+library(foreign)
+library(wesanderson)
+library(psych)
+library(pheatmap)
+library(ade4)
+library(readxl)
+library(ggplot2)
+library(Hmisc)
+
+#模型构建：跨时间的多变量表征相似性矩阵（国家尺度，意间-时间维度）
+##以老年人心理健康为例
+CLHLSdata <- read_excel(".../mentalhealth.xlsx")
+mentalhealth<- CLHLSdata[c(1:7),c(2:9)]
+mentalhealth<- as.data.frame(mentalhealth)
+mentalhealth_1998.dists <- dist(mentalhealth[,1])
+mentalhealth_2000.dists <- dist(mentalhealth[,2])
+mentalhealth_2002.dists <- dist(mentalhealth[,3])
+mentalhealth_2005.dists <- dist(mentalhealth[,4])
+mentalhealth_2008.dists <- dist(mentalhealth[,5])
+mentalhealth_2011.dists <- dist(mentalhealth[,6])
+mentalhealth_2014.dists <- dist(mentalhealth[,7])
+mentalhealth_2018.dists <- dist(mentalhealth[,8])
+a1998<-as.matrix(mentalhealth_1998.dists)
+a2000<-as.matrix(mentalhealth_2000.dists)
+a2002<-as.matrix(mentalhealth_2002.dists)
+a2005<-as.matrix(mentalhealth_2005.dists)
+a2008<-as.matrix(mentalhealth_2008.dists)
+a2011<-as.matrix(mentalhealth_2011.dists)
+a2014<-as.matrix(mentalhealth_2014.dists)
+a2018<-as.matrix(mentalhealth_2018.dists)
+a1998<-1-(a1998-min(a1998))/(max(a1998)-min(a1998))
+a2000<-1-(a2000-min(a2000))/(max(a2000)-min(a2000))
+a2002<-1-(a2002-min(a2002))/(max(a2002)-min(a2002))
+a2005<-1-(a2005-min(a2005))/(max(a2005)-min(a2005))
+a2008<-1-(a2008-min(a2008))/(max(a2008)-min(a2008))
+a2011<-1-(a2011-min(a2011))/(max(a2011)-min(a2011))
+a2014<-1-(a2014-min(a2014))/(max(a2014)-min(a2014))
+a2018<-1-(a2018-min(a2018))/(max(a2018)-min(a2018))
+mentalhealth1998<-as.matrix(a1998[lower.tri(a1998)])
+mentalhealth2000<-as.matrix(a2000[lower.tri(a2000)])
+mentalhealth2002<-as.matrix(a2002[lower.tri(a2002)])
+mentalhealth2005<-as.matrix(a2005[lower.tri(a2005)])
+mentalhealth2008<-as.matrix(a2008[lower.tri(a2008)])
+mentalhealth2011<-as.matrix(a2011[lower.tri(a2011)])
+mentalhealth2014<-as.matrix(a2014[lower.tri(a2014)])
+mentalhealth2018<-as.matrix(a2018[lower.tri(a2018)])
+mentalhealth_total<-cbind(mentalhealth1998,mentalhealth2000,mentalhealth2002,mentalhealth2005,
+                          mentalhealth2008,mentalhealth2011,mentalhealth2014,mentalhealth2018)
+mentalhealth_totalr<-cor(mentalhealth_total,method="pearson")
+pheatmap(mentalhealth_totalr,cluster_rows = FALSE, cluster_cols = FALSE,border_color = "gray",
+         color = c(colorRampPalette(colors = c("#097CFF","white"))(90),
+                   colorRampPalette(colors = c("white","red"))(10)),
+         legend_breaks=seq(0.74,1,0.1),angle_col=45)
